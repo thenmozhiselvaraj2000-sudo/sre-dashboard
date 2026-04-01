@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SRE Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0B1F3A;
+  color: #FFFFFF;
+}
+
+h1 {
+  text-align: center;
+  color: #00A8FF;
+}
+
+.container {
+  padding: 20px;
+}
+
+/* CARDS */
+.top {
+  display: flex;
+  gap: 20px;
+}
+
+.card {
+  flex: 1;
+  background: #112D4E;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.card p {
+  font-size: 26px;
+}
+
+/* STATUS */
+.healthy { color: #00FF9F; }
+.crash { color: #FF4C4C; }
+
+/* PROGRESS */
+.progress {
+  background: #1B3B6F;
+  height: 10px;
+  border-radius: 5px;
+}
+
+#bar {
+  height: 10px;
+  width: 50%;
+  background: linear-gradient(90deg,#00A8FF,#00FF9F);
+}
+
+/* CHART */
+.chart-box {
+  margin-top: 20px;
+  background: #112D4E;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* BUTTONS */
+.buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+/* BUTTON COLORS */
+.add { background: #007BFF; }
+.add:hover { background: #339CFF; }
+
+.crashBtn { background: #FF4C4C; }
+.crashBtn:hover { background: #FF6B6B; }
+
+.restart { background: #00C853; }
+.restart:hover { background: #33D17A; }
+
+/* FOOTER */
+.footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  color: #B0C4DE;
+}
+</style>
+</head>
+
+<body>
+
+<h1>SRE System Dashboard</h1>
+
+<div class="container">
+
+<div class="top">
+
+<div class="card">
+<h3>Active Users</h3>
+<p id="users">18</p>
+</div>
+
+<div class="card">
+<h3>System Status</h3>
+<p id="status" class="healthy">Healthy</p>
+</div>
+
+<div class="card">
+<h3>Load Level</h3>
+<p id="loadText">Moderate</p>
+<div class="progress"><div id="bar"></div></div>
+</div>
+
+</div>
+
+<div class="chart-box">
+<canvas id="chart"></canvas>
+</div>
+
+<div class="buttons">
+<button class="add" onclick="addUser()">Add User</button>
+<button class="crashBtn" onclick="crash()">Crash</button>
+<button class="restart" onclick="restart()">Restart</button>
+</div>
+
+<div class="footer">
+<span>Response: <b id="res">120 ms</b></span>
+<span>Error: <b id="err">0%</b></span>
+<span>Uptime: <b id="up">100%</b></span>
+</div>
+
+</div>
+
+<script>
+let users = 18;
+let load = 50;
+
+const chart = new Chart(document.getElementById("chart"), {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [{
+      data: [],
+      borderColor: "#00A8FF",
+      tension: 0.4
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false }},
+    scales: { x: { display: false }, y: { display: false }}
+  }
+});
+
+function updateLoad() {
+  load = Math.min(100, users * 3);
+  document.getElementById("bar").style.width = load + "%";
+
+  let text = "Low";
+  if (load > 30) text = "Moderate";
+  if (load > 70) text = "High";
+
+  document.getElementById("loadText").innerText = text;
+}
+
+function updateChart() {
+  if (chart.data.labels.length > 10) {
+    chart.data.labels.shift();
+    chart.data.datasets[0].data.shift();
+  }
+
+  chart.data.labels.push("");
+  chart.data.datasets[0].data.push(load);
+  chart.update();
+}
+
+function addUser() {
+  users++;
+  document.getElementById("users").innerText = users;
+  updateLoad();
+  updateChart();
+}
+
+function crash() {
+  document.getElementById("status").innerText = "Crashed";
+  document.getElementById("status").className = "crash";
+  document.getElementById("err").innerText = "80%";
+  document.getElementById("up").innerText = "40%";
+}
+
+function restart() {
+  document.getElementById("status").innerText = "Healthy";
+  document.getElementById("status").className = "healthy";
+  document.getElementById("err").innerText = "0%";
+  document.getElementById("up").innerText = "100%";
+}
+
+setInterval(() => {
+  document.getElementById("res").innerText =
+    Math.floor(Math.random()*200+50) + " ms";
+  updateChart();
+}, 2000);
+
+updateLoad();
+</script>
+
+</body>
+</html>
