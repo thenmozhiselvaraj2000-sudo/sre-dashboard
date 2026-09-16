@@ -1,0 +1,22 @@
+name: SRE Dashboard CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check HTML file
+        run: |
+          test -f index.html
+          echo "index.html exists"
+
+      - name: CI Success
+        run: echo "SRE Dashboard CI completed successfully"
