@@ -20,3 +20,10 @@ jobs:
 
       - name: CI Success
         run: echo "SRE Dashboard CI completed successfully"
+
+      - name: Build Docker image
+        run: docker build -t sre-dashboard:latest .
+
+      - name: Build successful
+        run: echo "Docker image built successfully!"
+
